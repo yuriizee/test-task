@@ -5,7 +5,10 @@ import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import App from './App.vue'
+import FullCalendar from 'vue-full-calendar'
 
+
+Vue.use(FullCalendar)
 Vue.use(BootstrapVue)
 
 Vue.config.productionTip = false

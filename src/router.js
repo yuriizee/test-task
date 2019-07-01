@@ -7,11 +7,6 @@ const routes = [
     name: 'home',
     component: () => import('./components/Calendar')
   },
-  {
-    path: '/calendar',
-    name: 'calendar',
-    component: () => import('./components/Calendar.vue')
-  },
 ]
 
 Vue.use(Router)
