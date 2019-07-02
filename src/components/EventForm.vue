@@ -2,7 +2,8 @@
     <form>
         <div class="form-group">
             <label for="event-name">Назва події</label>
-            <input type="text" v-model="name" class="form-control" id="event-name" placeholder="введіть назву події">
+            <input type="text" v-validate="'required|min:7'" name="eventName" v-model="name" class="form-control" id="event-name" placeholder="введіть назву події">
+            <span>{{ errors.first('eventName') }}</span>
         </div>
 
         <div class="form-group grouped">
@@ -59,41 +60,41 @@
 </template>
 
 <script>
-  import {mapMutations} from 'vuex'
+    import {mapMutations} from 'vuex'
 
-  export default {
-    name: "EventForm",
-    data() {
-      return {
-        name: null,
-        inform: false,
-        startDay: null,
-        startTime: null,
-        endDay: null,
-        endTime: null,
-        informDay: null,
-        informTime: null,
-        media: []
-      }
-    },
-    methods: {
-      ...mapMutations('global', ['addEvent']),
-      save() {
-        this.addEvent({
-          title: this.name,
-          start: this.startDay + (!_.isNull(this.startTime) ? 'T' + this.startTime : ''),
-          end: this.endDay + (!isNull(this.endTime) ? 'T' + this.endTime : ''),
-          allDay: false,
-          data: {
-            inform: this.inform,
-            informDay: this.informDay,
-            informTime: this.informTime,
-            media: this.media
-          }
-        })
-      }
+    export default {
+        name: "EventForm",
+        data() {
+            return {
+                name: null,
+                inform: false,
+                startDay: null,
+                startTime: null,
+                endDay: null,
+                endTime: null,
+                informDay: null,
+                informTime: null,
+                media: []
+            }
+        },
+        methods: {
+            ...mapMutations('global', ['addEvent']),
+            save() {
+                this.addEvent({
+                    title: this.name,
+                    start: this.startDay + (!_.isNull(this.startTime) ? 'T' + this.startTime : ''),
+                    end: this.endDay + (!_.isNull(this.endTime) ? 'T' + this.endTime : ''),
+                    allDay: false,
+                    data: {
+                        inform: this.inform,
+                        informDay: this.informDay,
+                        informTime: this.informTime,
+                        media: this.media
+                    }
+                })
+            }
+        }
     }
-  }
 </script>
 
 <style scoped>
