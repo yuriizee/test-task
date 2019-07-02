@@ -6,9 +6,11 @@
                 <event-form></event-form>
             </div>
             <div class="col-9">
-                <full-calendar :events="events" :config="config"></full-calendar>
+                <full-calendar :events="events" :config="config" @event-selected="show"></full-calendar>
             </div>
         </div>
+
+        <event-modal :event="selectedEvent"></event-modal>
     </div>
 </template>
 
@@ -17,15 +19,29 @@
   import 'fullcalendar/dist/locale/uk'
   import EventForm from "./EventForm";
   import { mapState } from 'vuex'
+  import EventModal from "./EventModal";
   export default {
     name: "Calendar",
-    components: {EventForm},
+    components: {EventModal, EventForm},
     data() {
       return {
         config: {
           defaultView: 'month',
           selectHelper: false,
+        },
+        selectedEvent: {
+          title  : null,
+          start  : null,
+          data: {
+            media: {}
+          }
         }
+      }
+    },
+    methods: {
+      show(e) {
+        this.selectedEvent = e
+        this.$bvModal.show('eventInfoModal')
       }
     },
     computed: {
