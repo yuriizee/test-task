@@ -2,18 +2,19 @@ export default {
   namespaced: true,
 
   state: {
+    accessToken: null,
     events: [
       {
-        title  : 'event1',
-        start  : '2019-07-01',
+        title: 'event1',
+        start: '2019-07-01',
         data: {
           media: {}
         }
       },
       {
-        title  : 'event2',
-        start  : '2019-07-05',
-        end    : '2019-07-07',
+        title: 'event2',
+        start: '2019-07-05',
+        end: '2019-07-07',
         className: ['f', 'ss'],
         data: {
           inform: 1,
@@ -24,9 +25,9 @@ export default {
         }
       },
       {
-        title  : 'event3',
-        start  : '2019-07-09T12:30:00',
-        allDay : false,
+        title: 'event3',
+        start: '2019-07-09T12:30:00',
+        allDay: false,
         data: {
           media: {}
         }
@@ -34,13 +35,30 @@ export default {
     ]
   },
 
-  getters: {},
-
-  mutations: {
-    addEvent(state, data) {
-      state.events.push(data);
+  getters: {
+    isAuthenticated: (state) => {
+      return !_.isNull(state.accessToken)
     },
   },
 
-  actions: {}
+  mutations: {
+    addEvent(state, data) {
+      state.events.push(data)
+    },
+    setAccessToken: (state, value) => {
+      localStorage.setItem('accessToken', value)
+      state.accessToken = value
+    },
+  },
+
+  actions: {
+    login(context, credentials) {
+      return http.post('/login', credentials)
+        .then((response) => {
+          const {access_token: accessToken} = response.data
+          context.commit('setAccessToken', accessToken)
+        })
+        .catch((error) => Promise.reject(error.response))
+    },
+  }
 };
