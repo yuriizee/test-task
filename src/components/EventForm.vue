@@ -1,9 +1,17 @@
 <template>
-    <div>
+    <div class="mb-5">
         <div class="form-group">
             <label for="event-name">Назва події</label>
             <input type="text" data-vv-as="Назва" v-validate="'required|min:7'" name="eventName" v-model="name"
                    class="form-control" id="event-name" placeholder="введіть назву події">
+            <small class="text-danger">{{ errors.first('eventName') }}</small>
+        </div>
+        <div class="form-group">
+            <label for="event-message">Повідомлення</label>
+            <textarea type="text" data-vv-as="Повідомлення" v-validate="'required|min:7'" name="eventMessage"
+                      v-model="message"
+                      class="form-control" id="event-message" placeholder="введіть повідомлення події"
+                      rows="3"></textarea>
             <small class="text-danger">{{ errors.first('eventName') }}</small>
         </div>
 
@@ -62,16 +70,16 @@
         </div>
 
         <b-form-file class="p-3"
-                v-model="media.image"
-                accept="image/*"
-                placeholder="Виберіть зображення..."
-                drop-placeholder="Перетягніть зображення сюди..."
+                     v-model="media.image"
+                     accept="image/*"
+                     placeholder="Виберіть зображення..."
+                     drop-placeholder="Перетягніть зображення сюди..."
         ></b-form-file>
         <b-form-file class="mt-3 p-3"
-                v-model="media.audio"
-                accept="audio/*"
-                placeholder="Виберіть запис..."
-                drop-placeholder="Перетягніть запис сюди..."
+                     v-model="media.audio"
+                     accept="audio/*"
+                     placeholder="Виберіть запис..."
+                     drop-placeholder="Перетягніть запис сюди..."
         ></b-form-file>
 
         <button @click.prevent="save" type="submit" class="btn btn-success">Зберегти</button>
@@ -79,48 +87,76 @@
 </template>
 
 <script>
-  import {mapMutations} from 'vuex'
+    import {mapActions, mapMutations} from 'vuex'
 
-  export default {
-    name: "EventForm",
-    data() {
-      return {
-        name: null,
-        inform: false,
-        startDay: null,
-        startTime: '00:00',
-        endDay: null,
-        endTime: '23:59',
-        informDay: null,
-        informTime: null,
-        media: {
-          image: null,
-          audio: null
+    export default {
+        name: "EventForm",
+        data() {
+            return {
+                name: null,
+                message: null,
+                inform: false,
+                startDay: null,
+                startTime: '00:00',
+                endDay: null,
+                endTime: '23:59',
+                informDay: null,
+                informTime: null,
+                media: {
+                    image: null,
+                    audio: null
+                }
+            }
+        },
+        methods: {
+            ...mapMutations('events', ['addEvent']),
+            ...mapActions('events', ['create']),
+            clearForm() {
+                this.name = this.message = this.startDay = this.endDay = this.informDay
+                    = this.informTime = this.media.image = this.media.audio = null;
+                this.startTime = '00:00'
+                this.endTime = '23:59'
+                this.inform = false
+            },
+            save() {
+                let formData = new FormData()
+                formData.append('title', this.name)
+                formData.append('message', this.message)
+                formData.append(
+                    'start',
+                    this.startDay + (!_.isNull(this.startTime) ? ' ' + this.startTime : ' 00:00') + ':00'
+                )
+                formData.append(
+                    'end',
+                    this.endDay + (!_.isNull(this.endTime) ? ' ' + this.endTime : ' 23:00') + ':00'
+                )
+                formData.append('inform', _.toInteger(this.inform))
+                formData.append(
+                    'inform_start',
+                    !this.inform
+                        ? ''
+                        : (this.informDay + (!_.isNull(this.informTime) ? ' ' + this.informTime : ' 23:00') + ':00')
+                )
+                if (this.media.image instanceof File) {
+                    formData.append('image', this.media.image)
+                }
+                if (this.media.audio instanceof File) {
+                    formData.append('audio', this.media.audio)
+                }
+
+                this.$validator.validate().then(valid => {
+                    if (valid) {
+                        this.create(formData).then((response) => {
+                            if (response.status === 201) {
+                                this.clearForm()
+                                this.addEvent(response.data)
+                            }
+                        })
+                    }
+                });
+            }
         }
-      }
-    },
-    methods: {
-      ...mapMutations('global', ['addEvent']),
-      save() {
-        this.$validator.validate().then(valid => {
-          if (valid) {
-            this.addEvent({
-              title: this.name,
-              start: this.startDay + (!_.isNull(this.startTime) ? 'T' + this.startTime : ''),
-              end: this.endDay + (!_.isNull(this.endTime) ? 'T' + this.endTime : ''),
-              allDay: false,
-              data: {
-                inform: this.inform,
-                informDay: this.informDay,
-                informTime: this.informTime,
-                media: this.media
-              }
-            })
-          }
-        });
-      }
     }
-  }
 </script>
 
 <style scoped>

@@ -1,11 +1,15 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import store from './store'
 
 const routes = [
   {
     path: '/',
     name: 'home',
+    component: () => import('./components/auth/Login')
+  },
+  {
+    path: '/calendar',
+    name: 'calendar',
     component: () => import('./components/Calendar')
   },
   {
@@ -30,8 +34,8 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.fullPath !== '/login') {
-    if (_.isNull(store.state.global.accessToken)) {
-      router.push('/login')
+    if (localStorage.getItem('accessToken') === null) {
+      router.replace('/login')
     } else {
       next()
     }
